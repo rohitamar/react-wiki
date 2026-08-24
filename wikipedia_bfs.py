@@ -13,10 +13,8 @@ from urllib.request import Request, urlopen
 DEFAULT_API_URL = "https://en.wikipedia.org/w/api.php"
 DEFAULT_USER_AGENT = "react-wiki-bfs/0.1 (https://github.com/rohitamar/react-wiki)"
 
-
 def title_key(title: str) -> str:
     return " ".join(title.replace("_", " ").split()).casefold()
-
 
 def shortest_path(
     start: str,
@@ -37,12 +35,13 @@ def shortest_path(
 
     start = start.strip().replace("_", " ")
     target = target.strip().replace("_", " ")
+    start_key = title_key(start)
     target_key = title_key(target)
-    visited = {title_key(start): start}
-    parent: dict[str, str | None] = {title_key(start): None}
+    visited = {start_key: start}
+    parent: dict[str, str | None] = {start_key: None}
     frontier = [start]
 
-    if title_key(start) == target_key:
+    if start_key == target_key:
         return [start]
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -70,7 +69,6 @@ def shortest_path(
             depth += 1
 
     return None
-
 
 class WikipediaClient:
     def __init__(
@@ -142,7 +140,6 @@ class WikipediaClient:
             if not continuation:
                 return links
 
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Find a shortest path between Wikipedia articles.")
     parser.add_argument("start", help="starting Wikipedia article title")
@@ -153,7 +150,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--api-url", default=DEFAULT_API_URL, help="Wikipedia API endpoint")
     parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT, help="HTTP User-Agent for Wikipedia requests")
     return parser
-
 
 def main() -> None:
     args = build_parser().parse_args()
@@ -169,7 +165,6 @@ def main() -> None:
         max_nodes=args.max_nodes,
     )
     print(json.dumps({"start": start, "target": target, "path": path}, indent=2))
-
 
 if __name__ == "__main__":
     main()
